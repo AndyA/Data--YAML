@@ -8,117 +8,117 @@ use vars qw{$VERSION};
 
 $VERSION = '0.0.5';
 
-my $ESCAPE_CHAR = qr{ [ \x00-\x1f \" ] }x;
+my $ESCAPE_CHAR = qr{ [\x00-\x1f\"] }x;
 
 my @UNPRINTABLE = qw(
-  z    x01  x02  x03  x04  x05  x06  a
-  x08  t    n    v    f    r    x0e  x0f
-  x10  x11  x12  x13  x14  x15  x16  x17
-  x18  x19  x1a  e    x1c  x1d  x1e  x1f
+ z    x01  x02  x03  x04  x05  x06  a
+ x08  t    n    v    f    r    x0e  x0f
+ x10  x11  x12  x13  x14  x15  x16  x17
+ x18  x19  x1a  e    x1c  x1d  x1e  x1f
 );
 
 # Create an empty Data::YAML::Writer object
 sub new {
-    my $class = shift;
-    bless {}, $class;
+  my $class = shift;
+  bless {}, $class;
 }
 
 sub write {
-    my $self = shift;
+  my $self = shift;
 
-    croak "Need something to write"
-      unless @_;
+  croak "Need something to write"
+   unless @_;
 
-    my $obj = shift;
-    my $out = shift || \*STDOUT;
+  my $obj = shift;
+  my $out = shift || \*STDOUT;
 
-    croak "Need a reference to something I can write to"
-      unless ref $out;
+  croak "Need a reference to something I can write to"
+   unless ref $out;
 
-    $self->{writer} = $self->_make_writer( $out );
+  $self->{writer} = $self->_make_writer( $out );
 
-    $self->_write_obj( '---', $obj );
-    $self->_put( '...' );
+  $self->_write_obj( '---', $obj );
+  $self->_put( '...' );
 
-    delete $self->{writer};
+  delete $self->{writer};
 }
 
 sub _make_writer {
-    my $self = shift;
-    my $out  = shift;
+  my $self = shift;
+  my $out  = shift;
 
-    my $ref = ref $out;
+  my $ref = ref $out;
 
-    if ( 'CODE' eq $ref ) {
-        return $out;
-    }
-    elsif ( 'ARRAY' eq $ref ) {
-        return sub { push @$out, shift };
-    }
-    elsif ( 'SCALAR' eq $ref ) {
-        return sub { $$out .= shift() . "\n" };
-    }
-    elsif ( 'GLOB' eq $ref || 'IO::Handle' eq $ref ) {
-        return sub { print $out shift(), "\n" };
-    }
+  if ( 'CODE' eq $ref ) {
+    return $out;
+  }
+  elsif ( 'ARRAY' eq $ref ) {
+    return sub { push @$out, shift };
+  }
+  elsif ( 'SCALAR' eq $ref ) {
+    return sub { $$out .= shift() . "\n" };
+  }
+  elsif ( 'GLOB' eq $ref || 'IO::Handle' eq $ref ) {
+    return sub { print $out shift(), "\n" };
+  }
 
-    croak "Can't write to $out";
+  croak "Can't write to $out";
 }
 
 sub _put {
-    my $self = shift;
-    $self->{writer}->( join '', @_ );
+  my $self = shift;
+  $self->{writer}->( join '', @_ );
 }
 
 sub _enc_scalar {
-    my $self = shift;
-    my $val  = shift;
+  my $self = shift;
+  my $val  = shift;
 
-    return '~' unless defined $val;
+  return '~' unless defined $val;
 
-    if ( $val =~ /$ESCAPE_CHAR/ ) {
-        $val =~ s/\\/\\\\/g;
-        $val =~ s/"/\\"/g;
-        $val =~ s/ ( [\x00-\x1f] ) / '\\' . $UNPRINTABLE[ ord($1) ] /gex;
-        return qq{"$val"};
-    }
+  if ( $val =~ /$ESCAPE_CHAR/ ) {
+    $val =~ s/\\/\\\\/g;
+    $val =~ s/"/\\"/g;
+    $val =~ s/ ( [\x00-\x1f] ) / '\\' . $UNPRINTABLE[ ord($1) ] /gex;
+    return qq{"$val"};
+  }
 
-    if ( length( $val ) == 0 or $val =~ /\s/ ) {
-        $val =~ s/'/''/;
-        return "'$val'";
-    }
+  if ( length( $val ) == 0 or $val =~ /\s/ ) {
+    $val =~ s/'/''/;
+    return "'$val'";
+  }
 
-    return $val;
+  return $val;
 }
 
 sub _write_obj {
-    my $self   = shift;
-    my $prefix = shift;
-    my $obj    = shift;
-    my $indent = shift || 0;
+  my $self   = shift;
+  my $prefix = shift;
+  my $obj    = shift;
+  my $indent = shift || 0;
 
-    if ( my $ref = ref $obj ) {
-        my $pad = '  ' x $indent;
-        $self->_put( $prefix );
-        if ( 'HASH' eq $ref ) {
-            for my $key ( sort keys %$obj ) {
-                my $value = $obj->{$key};
-                $self->_write_obj( $pad . $self->_enc_scalar( $key ) . ':',
-                    $value, $indent + 1 );
-            }
-        }
-        elsif ( 'ARRAY' eq $ref ) {
-            for my $value ( @$obj ) {
-                $self->_write_obj( $pad . '-', $value, $indent + 1 );
-            }
-        }
-        else {
-            croak "Don't know how to encode $ref";
-        }
+  if ( my $ref = ref $obj ) {
+    my $pad = '  ' x $indent;
+    $self->_put( $prefix );
+    if ( 'HASH' eq $ref ) {
+      for my $key ( sort keys %$obj ) {
+        my $value = $obj->{$key};
+        $self->_write_obj( $pad . $self->_enc_scalar( $key ) . ':',
+          $value, $indent + 1 );
+      }
+    }
+    elsif ( 'ARRAY' eq $ref ) {
+      for my $value ( @$obj ) {
+        $self->_write_obj( $pad . '-', $value, $indent + 1 );
+      }
     }
     else {
-        $self->_put( $prefix, ' ', $self->_enc_scalar( $obj ) );
+      croak "Don't know how to encode $ref";
     }
+  }
+  else {
+    $self->_put( $prefix, ' ', $self->_enc_scalar( $obj ) );
+  }
 }
 
 1;
