@@ -5,7 +5,7 @@ use warnings;
 
 use vars qw{$VERSION};
 
-$VERSION = '0.0.5';
+$VERSION = '0.0.6';
 
 1;
 
@@ -17,7 +17,7 @@ Data::YAML - Easy YAML serialisation of Perl data structures
 
 =head1 VERSION
 
-This document describes Data::YAML version 0.0.5
+This document describes Data::YAML version 0.0.6
 
 =head1 DESCRIPTION
 
