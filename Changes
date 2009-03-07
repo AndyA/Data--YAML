@@ -1,0 +1,10 @@
+Revision history for Data-YAML
+
+0.0.3   2007-03-17
+    - Initial release.
+    
+0.0.4   2007-03-17
+    - Added tests for input / output modes
+    - Added the tests to MANIFEST. D'oh.
+
+
