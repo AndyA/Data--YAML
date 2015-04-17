@@ -6,7 +6,7 @@ use Carp;
 
 use vars qw{$VERSION};
 
-$VERSION = '0.0.6';
+$VERSION = '0.0.7';
 
 my $ESCAPE_CHAR = qr{ [\x00-\x1f\"] }x;
 
@@ -132,7 +132,7 @@ Data::YAML::Writer - Easy YAML serialisation
 
 =head1 VERSION
 
-This document describes Data::YAML::Writer version 0.0.6
+This document describes Data::YAML::Writer version 0.0.7
 
 =head1 SYNOPSIS
     

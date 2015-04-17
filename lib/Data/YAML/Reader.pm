@@ -6,7 +6,7 @@ use Carp;
 
 use vars qw{$VERSION};
 
-$VERSION = '0.0.6';
+$VERSION = '0.0.7';
 
 # TODO:
 #   Handle blessed object syntax
@@ -303,7 +303,7 @@ Data::YAML::Reader - Parse YAML created by Data::YAML::Writer
 
 =head1 VERSION
 
-This document describes Data::YAML::Reader version 0.0.6
+This document describes Data::YAML::Reader version 0.0.7
 
 =head1 SYNOPSIS
 
