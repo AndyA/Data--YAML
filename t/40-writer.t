@@ -80,6 +80,38 @@ BEGIN {
       out  => [ '---', "'': ''", '...', ],
     },
     {
+      name => 'Single colon value',
+      in   => { 'zomtec' => { 'colon' => ':' } },
+      out  => [ '---',
+                "zomtec:",
+                '  colon: ":"',
+                '...', ],
+    },
+    {
+      name => 'Colon at beginning of value',
+      in   => { 'zomtec' => { 'colons' => ':zomtec' } },
+      out  => [ '---',
+                "zomtec:",
+                '  colons: :zomtec',
+                '...', ],
+    },
+    {
+      name => 'Colon in the middle of value',
+      in   => { 'zomtec' => { 'colons' => 'affe:zomtec' } },
+      out  => [ '---',
+                "zomtec:",
+                '  colons: affe:zomtec',
+                '...', ],
+    },
+    {
+      name => 'Colon at end of value',
+      in   => { 'zomtec' => { 'colons' => 'zomtec:' } },
+      out  => [ '---',
+                "zomtec:",
+                '  colons: "zomtec:"',
+                '...', ],
+    },
+    {
       name => 'Complex',
       in   => {
         'bill-to' => {
