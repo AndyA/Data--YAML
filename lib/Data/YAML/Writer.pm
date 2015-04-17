@@ -76,7 +76,7 @@ sub _enc_scalar {
 
   return '~' unless defined $val;
 
-  if ( $val =~ /$ESCAPE_CHAR/ ) {
+  if ( $val =~ /$ESCAPE_CHAR/ or $val =~ /:$/ ) {
     $val =~ s/\\/\\\\/g;
     $val =~ s/"/\\"/g;
     $val =~ s/ ( [\x00-\x1f] ) / '\\' . $UNPRINTABLE[ ord($1) ] /gex;
