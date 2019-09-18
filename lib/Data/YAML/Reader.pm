@@ -29,6 +29,7 @@ my $HASH_LINE = qr{ ^ ($QQ_STRING|\S+) \s* : (?: \s+ (.+?) \s* )? $ }x;
 my $IS_HASH_KEY  = qr{ ^ [\w\'\"] }x;
 my $IS_END_YAML  = qr{ ^ [.][.][.] \s* $ }x;
 my $IS_QQ_STRING = qr{ ^ $QQ_STRING $ }x;
+my $IS_ARRAY_LINE = qr{ ^ - \s* ($QQ_STRING|\S+) }x;
 
 # Create an empty Data::YAML::Reader object
 sub new {
@@ -279,8 +280,16 @@ sub _read_hash {
     my ( $key, $value ) = ( $self->_read_scalar( $1 ), $2 );
     $self->_next;
 
+    my ( $next_line, $next_indent ) = $self->_peek;
+
     if ( defined $value ) {
       $hash->{$key} = $self->_read_scalar( $value );
+    }
+    elsif (not defined $value                  # no explicit undef ("~") given
+           and $next_indent <= $limit          # next line is same or less indentation
+           and $next_line !~ $IS_ARRAY_LINE)   # arrays can start at same indent
+    {
+        $hash->{$key} = undef;
     }
     else {
       $hash->{$key} = $self->_read_nested;
